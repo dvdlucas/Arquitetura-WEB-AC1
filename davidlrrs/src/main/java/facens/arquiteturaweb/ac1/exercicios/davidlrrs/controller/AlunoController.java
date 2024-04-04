@@ -1,15 +1,21 @@
-package main.java.facens.arquiteturaweb.ac1.exercicios.davidlrrs.controller;
+package facens.arquiteturaweb.ac1.exercicios.davidlrrs.controller;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import main.java.facens.arquiteturaweb.ac1.exercicios.davidlrrs.model.Aluno;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import facens.arquiteturaweb.ac1.exercicios.davidlrrs.services.AlunoService;
+import facens.arquiteturaweb.ac1.exercicios.davidlrrs.model.Aluno;
 
-import facens.arquiteturaweb.ac1.exercicios.davidlrrs.SpringBootApplication;
 
-@SpringBootApplication
 
 @RestController
 
@@ -17,46 +23,35 @@ import facens.arquiteturaweb.ac1.exercicios.davidlrrs.SpringBootApplication;
 
 public class AlunoController {
     
-    private List<Aluno> alunos = new ArrayList<>();
-    private Long nextRa = 1L;
+    private final AlunoService alunoService;
+
+    public AlunoController(AlunoService alunoService){
+        this.alunoService = alunoService;
+    }
+
+    @GetMapping
+    public List<Aluno> getAllAlunos(){
+        return alunoService.getAllAlunos();
+    }
 
     @PostMapping("/add")
-    public Aluno criarAluno(RequestBody Aluno aluno){
-        aluno.setRa(nextRa++);
-        alunos.add(aluno);
-        return "Aluno adicionado com sucesso";
-    }
-    
-    @GetMapping
-    public List<Aluno>getAllAlunos(){
-        return alunos;
+    public Aluno createAluno(@RequestBody Aluno aluno){
+        return alunoService.createAluno(aluno);
     }
 
     @GetMapping("/{ra}")
     public Aluno getAlunoByRA(@PathVariable Long ra){
-        return alunos.stream()
-                .filter(aluno -> aluno.getRa().equals(ra))
-                .findFirst()
-                .orElse(null);
+        return alunoService.getAlunoByRA(ra);
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{ra}")
     public void deletarAluno(@PathVariable Long ra) {
-        boolean removed = alunos.removeIf(aluno -> aluno.getRa().equals(ra));
-        return removed ? "Aluno deletado" : "Aluno não encontrado";
+         alunoService.removeAluno(ra);
     }
 
-    @PutMapping("update/{id}")
-    public Aluno atualizarAluno(@PathVariable Long id, @RequestBody Aluno alunoAtualizado) {
-        for (int i = 0; i < alunos.size(); i++) {
-            Aluno aluno = alunos.get(i);
-            if (aluno.getRa().equals(ra)) {
-                alunoAtualizado.setRa(aluno.getRa());
-                alunos.set(i, alunoAtualizado);
-                return alunoAtualizado;
-            }
-        }
-        return null;
+    @PutMapping("update/")
+    public Aluno atualizarAluno(@RequestBody Aluno aluno) {
+        return alunoService.updateAluno(aluno);
     }
 
 
